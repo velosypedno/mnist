@@ -1,15 +1,27 @@
 version: '3'
 
 vars:
-  TRAIN_IMAGES: "./data/train-images-idx3-ubyte/train-images-idx3-ubyte"
-  TRAIN_LABELS: "./data/train-labels-idx1-ubyte/train-labels-idx1-ubyte"
-  TEST_IMAGES: "./data/t10k-images-idx3-ubyte/t10k-images-idx3-ubyte"
-  TEST_LABELS: "./data/t10k-labels-idx1-ubyte/t10k-labels-idx1-ubyte"
+  DATA_DIR: "./data"
+  TRAIN_IMAGES: "{{.DATA_DIR}}/train-images-idx3-ubyte/train-images-idx3-ubyte"
+  TRAIN_LABELS: "{{.DATA_DIR}}/train-labels-idx1-ubyte/train-labels-idx1-ubyte"
+  TEST_IMAGES: "{{.DATA_DIR}}/t10k-images-idx3-ubyte/t10k-images-idx3-ubyte"
+  TEST_LABELS: "{{.DATA_DIR}}/t10k-labels-idx1-ubyte/t10k-labels-idx1-ubyte"
   MODEL_PATH: "./models/mnist.gob"
 
 tasks:
+  init:
+    desc: Prepare directories and unpack dataset
+    internal: true
+    cmds:
+      - mkdir -p data models
+      - unzip -n dataset.zip -d {{.DATA_DIR}}
+    status:
+      - test -d {{.DATA_DIR}}/train-images-idx3-ubyte
+      - test -d models
+
   train:
     desc: Train the neural network on MNIST data
+    deps: [init]
     cmds:
       - go run cmd/train/main.go -images={{.TRAIN_IMAGES}} -labels={{.TRAIN_LABELS}} -output={{.MODEL_PATH}}
 
