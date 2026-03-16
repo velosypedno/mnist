@@ -32,6 +32,13 @@ tasks:
     cmds:
       - go run cmd/validate/main.go -images={{.TEST_IMAGES}} -labels={{.TEST_LABELS}} -model={{.MODEL}}
 
+  app:
+    desc: Run evaluation on test data
+    vars:
+      MODEL: '{{default .MODEL_PATH .MODEL}}'
+    cmds:
+      - go run cmd/app/main.go
+
   all:
     desc: Run training and then validation
     cmds:

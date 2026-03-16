@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/velosypedno/mnist/dataset"
-	"github.com/velosypedno/nns/network"
+	"github.com/velosypedno/nns/network/cnn"
 )
 
 func main() {
@@ -24,7 +24,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	n, err := network.LoadFromFile(*modelPtr)
+	n, err := cnn.LoadFromFile(*modelPtr)
 	if err != nil {
 		fmt.Printf("Error loading model: %v\n", err)
 		os.Exit(1)

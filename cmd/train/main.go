@@ -10,7 +10,7 @@ import (
 	"github.com/velosypedno/nns/layer"
 	"github.com/velosypedno/nns/logger"
 	"github.com/velosypedno/nns/loss"
-	"github.com/velosypedno/nns/network"
+	"github.com/velosypedno/nns/network/cnn"
 )
 
 func init() {
@@ -30,26 +30,36 @@ func main() {
 		os.Exit(1)
 	}
 
-	layers := []network.Layer{
-		layer.NewDense(784, 392),
+	classificationLayers := []cnn.MLPLayer{
+		layer.NewDense(400, 200),
 		layer.NewTanh(),
-		layer.NewDense(392, 196),
+		layer.NewDense(200, 100),
 		layer.NewTanh(),
-		layer.NewDense(196, 10),
+		layer.NewDense(100, 10),
 	}
-	lr := 0.05
+
+	convolutionLayers := []cnn.CNNLayer{
+		layer.NewConv(3, 8, 1, 28, 28),
+		layer.NewReLU(),
+		layer.NewMaxPool(2, 2, 8, 26, 26),
+		layer.NewReLU(),
+		layer.NewConv(3, 16, 8, 13, 13),
+		layer.NewReLU(),
+		layer.NewMaxPool(2, 2, 16, 11, 11),
+	}
 
 	lgr := logger.NewPrettyLogger()
 	defer lgr.Sync()
 
-	n := network.New(
-		layers,
-		lr,
-		loss.NewSoftMaxCrossEntropyFunc(),
-		network.WithLogger(lgr),
-		network.WithLogInterval(1),
-		network.WithBatchSize(32),
-		network.WithEpochs(30),
+	n := cnn.New(
+		convolutionLayers,
+		classificationLayers,
+		cnn.WithLoss(loss.NewSoftMaxCrossEntropyFunc()),
+		cnn.WithLogger(lgr),
+		cnn.WithLogInterval(1),
+		cnn.WithBatchSize(32),
+		cnn.WithEpochs(16),
+		cnn.WithLearningRate(0.05),
 	)
 
 	X, Y, err := dataset.Load(*imgPtr, *lblPtr)
